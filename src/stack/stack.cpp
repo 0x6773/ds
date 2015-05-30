@@ -9,11 +9,11 @@ template<typename T>
 struct Node
 {
   T elem;
-  unique_ptr<Node<T>> next = nullptr;
+  unique_ptr<Node<T>> prev = nullptr;
   Node (T _elem, unique_ptr<Node<T>> _pos)
   {
     elem = _elem;
-    next = move(_pos);
+    prev = move(_pos);
   }
 };
 
@@ -24,7 +24,7 @@ private:
   unique_ptr<Node<T>> ar;
   int _size = 0;
 public:
-  const int& Size() const
+  int Size() const
   {
     return _size;
   }
@@ -46,7 +46,7 @@ public:
   void Pop()
   {
     assert(ar!=nullptr && "Stack is Empty");
-    ar = move(ar->next);
+    ar = move(ar->prev);
     _size--;
   }
 };
