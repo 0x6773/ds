@@ -25,7 +25,8 @@ private:
   shared_ptr<Node<T>> back;
   int _size = 0;
 public:
-  Queue() : front(nullptr), back(nullptr)
+  Queue()
+    : front(nullptr), back(nullptr)
   {}
   int Size() const
   {
@@ -72,7 +73,6 @@ int main()
   Queue<int> st;
   
   st.Push(10);
-  cout<<"Pushed"<<endl;
   cout<<st.Front()<<" : "<<st.Back()<<" : "<<st.Size()<<'\n';
   st.Push(20);
   cout<<st.Front()<<" : "<<st.Back()<<" : "<<st.Size()<<'\n';
@@ -84,7 +84,7 @@ int main()
   st.Pop();
   cout<<st.Front()<<" : "<<st.Size()<<'\n';
   st.Pop();
-  cout<<"Stack Empty : "<<st.Size()<<'\n';
+  cout<<"Queue Empty : "<<st.Size()<<'\n';
   
   return 0;
 }
