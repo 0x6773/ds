@@ -12,14 +12,14 @@ class BTreeVector
 private:
   typedef typename Cont::iterator Position;
   Cont ar;
-  int idx(const Position& p)
+  int idx(const Position& p) const
   {
-    return distance(ar.begin(), p);
+    return p - ar.begin();
   }
 public:
   BTreeVector()
   {
-    ar.push_back(0);
+    ar.push_back(T());
   }
   int Size() const
   {
@@ -29,12 +29,12 @@ public:
   {
     return Size() == 0;
   }
-  Position Root() const
+  Position Root()	      
   {
     assert(!this->Empty() && "No elements found");
     return ar.begin() + 1;
   }
-  Position Last() const
+  Position Last()
   {
     assert(!this->Empty() && "No elements found");
     return ar.end() - 1;
@@ -47,26 +47,26 @@ public:
   {
     return 2 * idx(p) <= Size();
   }
-  Position Left(const Position& p) const
+  Position Left(const Position& p)
   {
     assert(hasLeft(p) && "Left child not found");
-    return 2 * idx(p);
+    return ar.begin() + 2 * idx(p);
   }
   bool hasRight(const Position& p) const
   {
     return 2 * idx(p) + 1 <= Size();
   }
-  Position Right(const Position& p) const
+  Position Right(const Position& p)
   {
     assert(hasRight(p) && "Right child not found");
-    return 2 * idx(p) + 1; 
+    return ar.begin() + 2 * idx(p) + 1;
   }
-  Position Parent(const  Position& p) const
+  Position Parent(const  Position& p)
   {
     int curr = idx(p);
     int res = curr / 2;
     assert(res > 0 && "No parent found");
-    return res;
+    return ar.begin() + res;
   }
   void addLast(const T& elem)
   {
@@ -76,7 +76,7 @@ public:
   {
     ar.pop_back();
   }
-  void swap(const Position& p, const Position& q)
+  void Swap(const Position& p, const Position& q)
   {
     swap(*p, *q);
   }
@@ -84,6 +84,5 @@ public:
 
 int main2()
 {
-  
   return 0;
 }
