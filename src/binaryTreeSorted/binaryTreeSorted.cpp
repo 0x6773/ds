@@ -80,47 +80,17 @@ private:
   NodePtr root;
   int _size = 0;
   C comp = C();
-  // H : Helpers
-  NodePtr addH(T elem, NodePtr node, NodePtr nodePar)
+  
+  tuple<NodePtr, NodePtr, bool> TreeSearch(T elem, NodePtr node, NodePtr nodePar) const
   {
     if(node == nullptr)
-    {
-      NodePtr newNode(new Node<T>(elem));
-      if(root == nullptr)
-      {
-	root = move(newNode);
-	return root;
-      }
-      else
-      {
-	if(comp(elem, nodePar->elem))
-	{
-	  nodePar->left.reset(new Node<T>(elem));
-	  node = nodePar->left;
-	}
-	else
-	{
-	  nodePar->right.reset(new Node<T>(elem));
-	  node = nodePar->right;
-	}
-	return node;
-      }
-    }
-    if(comp(elem, node->elem))
-      return addH(elem, node->Left(false), node);
-    else
-      return addH(elem, node->Right(false), node);
-  }
-  bool ContainsH(T elem, NodePtr node) const
-  {
-    if(node == nullptr)
-      return false;
+      return make_tuple(node, nodePar, false);
     else if(elem == node->elem)
-      return true;
+      return make_tuple(node, nodePar, true);
     else if(comp(elem, node->elem))
-      return ContainsH(elem, node->Left(false));
+      return TreeSearch(elem, node->Left(false), node);
     else
-      return ContainsH(elem, node->Right(false));
+      return TreeSearch(elem, node->Right(false), node);
   }    
 public:
   BTreeSorted()
@@ -141,14 +111,36 @@ public:
   }
   NodePtr add(T elem)
   {
-    return addH(elem, root, root);
-    ++_size;
+    auto pos = TreeSearch(elem, root, root);
+    while(get<2>(pos))
+      pos = TreeSearch(elem, get<0>(pos)->Right(false), get<0>(pos));
+    NodePtr node = get<0>(pos);
+    NodePtr nodePar = get<1>(pos);
+    if(root == nullptr)
+    {
+      root.reset(new Node<T>(elem));
+      return node;
+    }
+    else
+    {	
+	if(comp(elem, nodePar->elem))
+	{
+	  nodePar->left.reset(new Node<T>(elem));
+	  node = nodePar->left;
+	}
+	else
+	{
+	  nodePar->right.reset(new Node<T>(elem));
+	  node = nodePar->right;
+	}
+    }      
+    return node;
   }
   bool Contains(T elem) const
   {
     if(!Empty())
       return false;
-    return ContainsH(elem, root);
+    return get<2>(TreeSearch(elem, root, root));
   }  
   void preorder(NodePtr node, int x = 0)
   {
@@ -209,10 +201,20 @@ public:
 int main()
 {
   BTreeSorted<int> sbt;
-  sbt.add(20);
+  sbt.add(50);
   sbt.add(10);
   sbt.add(30);
+  sbt.add(60);
+  sbt.add(10);
+  sbt.add(40);
+  sbt.add(10);
+  sbt.add(60);
+  sbt.add(55);
+  sbt.add(50);
+  sbt.add(50);
+
   sbt.inorderReverse(sbt.Root());
-  cout<<boolalpha<<sbt.Contains(10);
+  cout<<boolalpha<<sbt.Contains(10)<<endl;
+  cout<<boolalpha<<sbt.Contains(0);
   return 0;
 }
