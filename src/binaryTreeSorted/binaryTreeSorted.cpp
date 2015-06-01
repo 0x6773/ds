@@ -1,4 +1,4 @@
-// sortedBinaryTree.cpp
+// binaryTreeSorted.cpp
 #include <iostream>
 #include <cassert>
 #include <memory>
@@ -71,13 +71,15 @@ ostream& operator<<(ostream& cout, const shared_ptr<Node<T>>& NodePtr)
   return cout;
 }
 
-template<typename T>
-class sortedBTree
+template<typename T,
+	 typename C = less<T>>
+class BTreeSorted
 {
 private:
   typedef shared_ptr<Node<T>> NodePtr;
   NodePtr root;
   int _size = 0;
+  C comp = C();
   // H : Helpers
   NodePtr addH(T elem, NodePtr node, NodePtr nodePar)
   {
@@ -91,7 +93,7 @@ private:
       }
       else
       {
-	if(elem < nodePar->elem)//Left
+	if(comp(elem, nodePar->elem))
 	{
 	  nodePar->left.reset(new Node<T>(elem));
 	  node = nodePar->left;
@@ -104,7 +106,7 @@ private:
 	return node;
       }
     }
-    if(elem < node->elem)
+    if(comp(elem, node->elem))
       return addH(elem, node->Left(false), node);
     else
       return addH(elem, node->Right(false), node);
@@ -115,13 +117,13 @@ private:
       return false;
     else if(elem == node->elem)
       return true;
-    else if(elem < node->elem)
+    else if(comp(elem, node->elem))
       return ContainsH(elem, node->Left(false));
     else
       return ContainsH(elem, node->Right(false));
   }    
 public:
-  sortedBTree()
+  BTreeSorted()
     : root(nullptr)
   {}
   int Size() const
@@ -206,11 +208,11 @@ public:
 
 int main()
 {
-  sortedBTree<int> sbt;
+  BTreeSorted<int> sbt;
   sbt.add(20);
   sbt.add(10);
   sbt.add(30);
   sbt.inorderReverse(sbt.Root());
-  cout<<boolalpha<<sbt.Contains(0);
+  cout<<boolalpha<<sbt.Contains(10);
   return 0;
 }
