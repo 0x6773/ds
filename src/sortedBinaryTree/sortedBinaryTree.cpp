@@ -1,25 +1,15 @@
-// binaryTree.cpp
+// sortedBinaryTree.cpp
 #include <iostream>
 #include <cassert>
 #include <memory>
-#include <string>
 
 using namespace std;
 
 template<typename T>
-struct Node;
-
-template<typename T>
-bool operator ==(const Node<T>& n1, const Node<T>& n2)
-{
-  return &n1 == &n2;
-}
-
-template<typename T>
 struct Node
 {
-  typedef shared_ptr<Node<T>> NodePtr;
   T elem;
+  typedef shared_ptr<Node<T>> NodePtr;
   NodePtr parent;
   NodePtr left;
   NodePtr right;
@@ -28,7 +18,7 @@ struct Node
       parent(nullptr),
       left(nullptr),
       right(nullptr)
-  {}
+  {}   
   bool isRoot() const
   {
     return parent == nullptr;
@@ -82,14 +72,56 @@ ostream& operator<<(ostream& cout, const shared_ptr<Node<T>>& NodePtr)
 }
 
 template<typename T>
-class BTree
+class sortedBTree
 {
 private:
   typedef shared_ptr<Node<T>> NodePtr;
   NodePtr root;
   int _size = 0;
+  // H : Helpers
+  NodePtr addH(T elem, NodePtr node, NodePtr nodePar)
+  {
+    if(node == nullptr)
+    {
+      NodePtr newNode(new Node<T>(elem));
+      if(root == nullptr)
+      {
+	root = move(newNode);
+	return root;
+      }
+      else
+      {
+	if(elem < nodePar->elem)//Left
+	{
+	  nodePar->left.reset(new Node<T>(elem));
+	  node = nodePar->left;
+	}
+	else
+	{
+	  nodePar->right.reset(new Node<T>(elem));
+	  node = nodePar->right;
+	}
+	return node;
+      }
+    }
+    if(elem < node->elem)
+      return addH(elem, node->Left(false), node);
+    else
+      return addH(elem, node->Right(false), node);
+  }
+  bool ContainsH(T elem, NodePtr node) const
+  {
+    if(node == nullptr)
+      return false;
+    else if(elem == node->elem)
+      return true;
+    else if(elem < node->elem)
+      return ContainsH(elem, node->Left(false));
+    else
+      return ContainsH(elem, node->Right(false));
+  }    
 public:
-  BTree()
+  sortedBTree()
     : root(nullptr)
   {}
   int Size() const
@@ -105,43 +137,17 @@ public:
     assert(root != nullptr && "No root found");
     return root;
   }
-  NodePtr addRoot(T elem)
+  NodePtr add(T elem)
   {
-    root.reset(new Node<T>(elem));
+    return addH(elem, root, root);
     ++_size;
-    return root;
   }
-  NodePtr addLeft(NodePtr node, T elem)
+  bool Contains(T elem) const
   {
-    assert(root != nullptr && "No root found");
-    assert(node->left == nullptr && "Left Node is not Null");
-    node->left.reset(new Node<T>(elem));
-    node->left->parent = node;
-    ++_size;
-    return node->left;
-  }
-  NodePtr addRight(NodePtr node, T elem)
-  {
-    assert(root != nullptr && "No root found");
-    assert(node->right == nullptr && "Right Node is not Null");
-    node->right.reset(new Node<T>(elem));
-    node->right->parent = node;
-    ++_size;
-    return node->right;
-  }
-  NodePtr removeExternal(NodePtr node)
-  {
-    assert(node->isExternal() && "Cannot Remove External. Not External");
-    assert(node != nullptr && "Nullptr found in removeExternal");
-    auto parent = node->parent;
-    auto sib = node->Sibling();
-    if(parent->left == node)
-      parent->left = sib;
-    else
-      parent->right = sib;
-    --_size;
-    return parent;
-  }
+    if(!Empty())
+      return false;
+    return ContainsH(elem, root);
+  }  
   void preorder(NodePtr node, int x = 0)
   {
     for(int i = 0; i < x; ++i)
@@ -169,6 +175,21 @@ public:
     }
     return;
   }
+  void inorderReverse(NodePtr node, int x = 0)
+  {
+    if(node != nullptr)
+    {
+      inorderReverse(node->Right(false), x + 1);
+    }
+    for(int i = 0; i < x; ++i)
+      cout<<"|  ";
+    cout<<"|--"<<node<<endl;
+    if(node != nullptr)
+    {
+      inorderReverse(node->Left(false), x + 1);
+    }
+    return;
+  }
   void postorder(NodePtr node, int x = 0)
   {
     if(node != nullptr)
@@ -185,12 +206,11 @@ public:
 
 int main()
 {
-  BTree<string> bts;
-  auto curr = bts.addRoot("Root");
-  auto currLeft = bts.addLeft(curr, "Left1");
-  auto currRight = bts.addRight(curr, "Right1");
-  currRight = bts.addRight(currLeft, "Right1");
-  bts.addLeft(currRight, "Left2");
-  bts.inorder(bts.Root());
+  sortedBTree<int> sbt;
+  sbt.add(20);
+  sbt.add(10);
+  sbt.add(30);
+  sbt.inorderReverse(sbt.Root());
+  cout<<boolalpha<<sbt.Contains(0);
   return 0;
 }
