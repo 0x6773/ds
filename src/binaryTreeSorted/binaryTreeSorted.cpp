@@ -8,11 +8,15 @@ using namespace std;
 template<typename T>
 struct Node
 {
+public:
   T elem;
+private:
   typedef shared_ptr<Node<T>> NodePtr;
   NodePtr parent;
   NodePtr left;
   NodePtr right;
+  
+public:
   Node(T _elem)
     : elem(_elem),
       parent(nullptr),
@@ -21,31 +25,33 @@ struct Node
   {}   
   bool isRoot() const
   {
-    return parent == nullptr;
+    return this->parent == nullptr;
   }
   bool isExternal() const
   {
-    return left == nullptr &&
-      right == nullptr;
+    return this->left == nullptr &&
+      this->right == nullptr;
   }
   bool hasSibling() const
   {
-    return this->parent->left != nullptr &&
-      this->parent->right != nullptr;
+    if(this->parent != nullptr)
+      return this->parent->left != nullptr &&
+	this->parent->right != nullptr;
+    return false;
   }
-  NodePtr Left(const bool chk = true) const
+  NodePtr& Left(const bool chk = true)
   {
     if(chk)
       assert(this->left != nullptr && "Left Child not found");
     return this->left;
   }
-  NodePtr Right(const bool chk = true) const
+  NodePtr& Right(const bool chk = true)
   {
     if(chk)
       assert(this->right != nullptr && "Right Child not found");
     return this->right;
   }
-  NodePtr Sibling() const
+  NodePtr& Sibling()
   {
     assert(!isRoot() && "Root has no Sibling");
     assert(hasSibling() && "Given Node has no Sibling");
@@ -54,15 +60,15 @@ struct Node
     else
       return this->parent->left;
   }
-  NodePtr Parent() const
+  NodePtr& Parent()
   {
     assert(this->parent != nullptr && "Parent of Root not found");
     return this->parent;
   }
 };
 
-template<typename T>
-ostream& operator<<(ostream& cout, const shared_ptr<Node<T>>& NodePtr)
+template<typename T> ostream&
+operator<<(ostream& cout, const shared_ptr<Node<T>>& NodePtr)
 {
   if(NodePtr == nullptr)
     cout<<"<null>";
@@ -72,16 +78,18 @@ ostream& operator<<(ostream& cout, const shared_ptr<Node<T>>& NodePtr)
 }
 
 template<typename T,
-	 typename C = less<T>>
+	 typename C = less<T>,
+	 bool repeat = true>
 class BTreeSorted
 {
 private:
   typedef shared_ptr<Node<T>> NodePtr;
   NodePtr root;
-  int _size = 0;
+  int _size;
   C comp = C();
   
-  tuple<NodePtr, NodePtr, bool> TreeSearch(T elem, NodePtr node, NodePtr nodePar) const
+  tuple<NodePtr, NodePtr, bool>
+  TreeSearch(T elem, NodePtr node, NodePtr nodePar) const
   {
     if(node == nullptr)
       return make_tuple(node, nodePar, false);
@@ -94,7 +102,8 @@ private:
   }    
 public:
   BTreeSorted()
-    : root(nullptr)
+    : root(nullptr),
+      _size(0)
   {}
   int Size() const
   {
@@ -109,11 +118,14 @@ public:
     assert(root != nullptr && "No root found");
     return root;
   }
-  NodePtr add(T elem)
+  NodePtr Add(T elem)
   {
     auto pos = TreeSearch(elem, root, root);
-    while(get<2>(pos))
-      pos = TreeSearch(elem, get<0>(pos)->Right(false), get<0>(pos));
+    if(repeat)
+      while(get<2>(pos))
+	pos = TreeSearch(elem, get<0>(pos)->Right(false), get<0>(pos));
+    else if(get<2>(pos))
+      return get<0>(pos);
     NodePtr node = get<0>(pos);
     NodePtr nodePar = get<1>(pos);
     if(root == nullptr)
@@ -125,13 +137,13 @@ public:
     {	
 	if(comp(elem, nodePar->elem))
 	{
-	  nodePar->left.reset(new Node<T>(elem));
-	  node = nodePar->left;
+	  nodePar->Left(false).reset(new Node<T>(elem));
+	  node = nodePar->Left();
 	}
 	else
 	{
-	  nodePar->right.reset(new Node<T>(elem));
-	  node = nodePar->right;
+	  nodePar->Right(false).reset(new Node<T>(elem));
+	  node = nodePar->Right();
 	}
     }      
     return node;
@@ -200,18 +212,18 @@ public:
 
 int main()
 {
-  BTreeSorted<int> sbt;
-  sbt.add(50);
-  sbt.add(10);
-  sbt.add(30);
-  sbt.add(60);
-  sbt.add(10);
-  sbt.add(40);
-  sbt.add(10);
-  sbt.add(60);
-  sbt.add(55);
-  sbt.add(50);
-  sbt.add(50);
+  BTreeSorted<int,less<int>,false> sbt;
+  sbt.Add(50);
+  sbt.Add(10);
+  sbt.Add(30);
+  sbt.Add(60);
+  sbt.Add(10);
+  sbt.Add(40);
+  sbt.Add(10);
+  sbt.Add(60);
+  sbt.Add(55);
+  sbt.Add(50);
+  sbt.Add(50);
 
   sbt.inorderReverse(sbt.Root());
   cout<<boolalpha<<sbt.Contains(10)<<endl;
