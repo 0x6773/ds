@@ -210,6 +210,7 @@ public:
   }
 };
 
+#ifndef HUFFMAN_BT
 int main()
 {
   BTreeSorted<int,less<int>,false> sbt;
@@ -230,3 +231,4 @@ int main()
   cout<<boolalpha<<sbt.Contains(0);
   return 0;
 }
+#endif
