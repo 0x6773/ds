@@ -98,7 +98,7 @@ public:
 
 int main()
 {
-  HuffmanCompress hfc("Indian Institute of Technology, Banaras Hindi University, Varanasi, UP - 221005");
+  HuffmanCompress hfc("Indian Institute of Technology, Banaras Hindi University, Varanasi, UP - 221005, India, Asia, Earth :)");
   hfc.Compress();
   hfc.print();
   return 0;
