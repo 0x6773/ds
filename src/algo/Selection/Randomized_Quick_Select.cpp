@@ -3,7 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include "/home/mnciitbhu/Codes/first.hpp"
+#include "/home/mnciitbhu/Codes/CPP/first.hpp"
 
 using namespace std;
 using namespace mydetails;
@@ -65,12 +65,12 @@ int main()
   for(int i = 0; i < 20; ++i)
     ar.push_back(rand() % 50);
 
-  print(ar);
+  cout<<ar<<endl;
   for(int i = 0; i < 20; ++i)
     cout<<quickSelect(ar.begin(), ar.end(), i)<<" ";
   cout<<endl;
   sort(ar.begin(), ar.end());
-  print(ar);
+  cout<<ar<<endl;
   
   return 0;
 }
