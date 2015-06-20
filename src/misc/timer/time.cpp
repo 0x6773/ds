@@ -3,6 +3,7 @@
 #include <chrono>
 #include <string>
 #include <cstdio>
+#include <thread>
 
 using namespace std;
 using namespace std::chrono;
@@ -42,16 +43,20 @@ int main(int argv, char *argc[])
       exec(cmd);
       auto end = std::chrono::high_resolution_clock::now();
       auto tmr = end - start;
-      cout<<tmr.count()/1000000000.0<<endl;
+      auto tt = tmr.count()/1000000000.0;
+      cout << tt << endl;
       if(tmr < min)
-	min = tmr;
+    	  min = tmr;
       if(tmr > max)
-	max = tmr;
-      mean = tmr.count()/1000000000.0;
+	      max = tmr;
+      mean += tt;
+      if(tt > 1.0)
+        this_thread::sleep_for(1s);
     }
   cout<<"Command \t\t: "<<cmd<<endl;
   cout<<"Max Time Taken \t\t: "<<max.count()<<" s"<<endl;
   cout<<"Min Time Taken \t\t: "<<min.count()<<" s"<<endl;
+  mean/=10;
   cout<<"Average Time Taken \t: "<<mean<<" s"<<endl;
   
   return 0;
