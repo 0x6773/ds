@@ -8,7 +8,7 @@
 using namespace std;
 using namespace std::chrono;
 
-string exec(string cmd)
+inline string exec(string cmd)
 {
   FILE* pipe = popen(cmd.c_str(), "r");
   if (!pipe)
